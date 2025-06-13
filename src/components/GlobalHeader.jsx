@@ -85,7 +85,7 @@ export default function GlobalHeader({
 
           {/* Price filter */}
           <div className="flex items-center gap-1 font-medium text-sm bg-white py-1 rounded-md border border-gray-200 px-2">
-            <span className="pr-1">Price</span>
+            <span className="pr-1 font-medium">Price</span>
             <input
               type="number"
               min={0}
