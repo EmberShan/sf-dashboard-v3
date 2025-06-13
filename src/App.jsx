@@ -164,7 +164,7 @@ function AppMain() {
 
   // Layout
   return (
-    <div className="w-full bg-background-color min-h-screen">
+    <div className="h-screen flex flex-col min-h-0 w-full bg-background-color">
       <GlobalHeader
         filters={filters}
         setFilters={setFilters}
@@ -179,11 +179,10 @@ function AppMain() {
         clearAllFilters={clearAllFilters}
       />
       <div
-        className={`flex flex-row w-screen min-h-0 transition-all duration-300`}
-        style={{ height: "calc(100vh - 0px)" }}
+        className="flex-1 min-h-0 flex flex-row w-screen transition-all duration-300"
       >
         {/* Catalogue Panel */}
-        <div className="flex-1 min-w-0 p-8 min-h-0">
+        <div className="flex-1 min-w-0 py-4 px-8 min-h-0 flex flex-col h-full">
           <Catalogue
             filteredData={filteredData}
             globalFilter={globalFilter}
@@ -198,7 +197,7 @@ function AppMain() {
         </div>
         {/* Analytics Panel */}
         {analyticsOpen && (
-          <div className="w-[50vw] max-w-[50vw] min-w-0 h-full min-h-0">
+          <div className="w-[50vw] max-w-[50vw] min-w-0 h-full min-h-0 flex flex-col">
             <Analytics
               open={analyticsOpen}
               onClose={() => setAnalyticsOpen(false)}
@@ -214,7 +213,7 @@ function AppMain() {
 
 function App() {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="w-full bg-background-color">
         <MySidebar />
         <AppMain />

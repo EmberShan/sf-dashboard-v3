@@ -97,20 +97,21 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
   return (
     <div
       className={
-        `h-full bg-background-color border-l border-gray-200 flex flex-col w-[50vw] max-w-[50vw] min-w-0`}
+        `h-full bg-background-color border-l border-gray-200 flex flex-col w-[50vw] max-w-[50vw] min-w-0 flex-1 min-h-0`
+      }
     >
       {/* header */}
-      <div className="flex items-center justify-between px-8 py-3 border-b">
+      <div className="flex items-center justify-between px-8 py-3 border-b flex-shrink-0">
         <div className="flex items-center gap-2">
           <ChartPie className="w-4 h-4" />
           <div className="font-semibold">Analytics Report</div>
         </div>
-        <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
+        <button onClick={onClose} className="p-2 rounded hover:bg-gray-100 hover:cursor-pointer">
           <X className="w-5 h-5" />
         </button>
       </div>
       {/* filters */}
-      <div className="flex flex-col gap-4 px-8 pt-4">
+      <div className="flex flex-col gap-4 px-8 pt-4 flex-shrink-0">
         <div className="flex gap-2 items-center flex-wrap">
           <label className="text-sm font-medium ml-2">Y-Axis:</label>
           <select
@@ -166,7 +167,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           </select>
         </div>
       </div>
-      <div className="flex-1 min-h-0 p-4">
+      <div className="flex-1 min-h-0 p-4 overflow-auto flex flex-col">
         <ResponsiveBar
           data={data}
           keys={keys}

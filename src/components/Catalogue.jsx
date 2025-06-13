@@ -157,15 +157,17 @@ export default function Catalogue({
   });
 
   return (
-    <div className="w-full relative h-full flex flex-row">
+    <div className="w-full relative h-full flex flex-col min-h-0">
       {/* Catalogue Table Panel */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 min-w-0`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 min-w-0 min-h-0`}
+      >
         {/* buttons and search */}
-        <div className="flex w-full justify-between items-center pb-4">
+        <div className="flex w-full justify-between items-center pb-4 flex-shrink-0">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
-              className="bg-primary-color/80 hover:bg-primary-color text-white hover:text-white border-none"
+              className="bg-primary-color/90 hover:bg-primary-color text-white hover:text-white border-none"
               onClick={() => setAnalyticsOpen(true)}
             >
               Generate Report
@@ -173,15 +175,13 @@ export default function Catalogue({
             {/* add to line plan button */}
             <div className="flex items-center justify-end space-x-4">
               <Button
-                className={`$${
+                className={`${
                   Object.keys(rowSelection).length > 0
-                    ? "text-white bg-primary-color/80 hover:bg-primary-color"
+                    ? "text-white bg-primary-color/90 hover:bg-primary-color"
                     : "bg-gray-400 text-white hover:bg-gray-400 hover:cursor-default"
                 }`}
               >
-                {" "}
                 Add to Line Plan ({Object.keys(rowSelection).length} selected)
-                {" "}
               </Button>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function Catalogue({
           </div>
         </div>
         {/* table */}
-        <div className="rounded-md border overflow-x-auto bg-white flex-1">
+        <div className="rounded-md border overflow-x-auto bg-white flex-1 min-h-0 overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
