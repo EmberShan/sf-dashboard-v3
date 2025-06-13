@@ -160,7 +160,7 @@ export default function Catalogue({
     <div className="w-full relative h-full flex flex-col min-h-0">
       {/* Catalogue Table Panel */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 min-w-0 min-h-0`}
+        className={`flex-1 flex flex-col flex-wrap transition-all duration-300 min-w-0 min-h-0`}
       >
         {/* buttons and search */}
         <div className="flex w-full justify-between items-center pb-4 flex-shrink-0">

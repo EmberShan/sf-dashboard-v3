@@ -31,48 +31,59 @@ export default function GlobalHeader({
           <span className="font-bold text-lg">Catalogue</span>
         </div>
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 items-center ml-8">
-          {dropdowns.map((dropdown) => {
-            const selectedCount = filters[dropdown.key].length;
-            return (
-              <DropdownMenu key={dropdown.key}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    {dropdown.label}
-                    {selectedCount > 0 && (
-                      <span className="ml-1 text-xs bg-gray-200 rounded-full px-2 py-0.5">
-                        {selectedCount}
-                      </span>
-                    )}
-                    <ChevronDown className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" closeOnSelect={false}>
-                  <DropdownMenuCheckboxItem
-                    checked={isAllSelected(dropdown.key)}
-                    onCheckedChange={() =>
-                      handleMultiSelect(dropdown.key, "__ALL__")
-                    }
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    {dropdown.allLabel}
-                  </DropdownMenuCheckboxItem>
-                  {dropdown.options.map((s) => (
+        <div className="flex flex-wrap items-center ml-8 gap-2">
+          <div className="flex flex-wrap items-center">
+            {dropdowns.map((dropdown, i) => {
+              const selectedCount = filters[dropdown.key].length;
+              const isFirst = i === 0;
+              const isLast = i === dropdowns.length - 1;
+              return (
+                <DropdownMenu key={dropdown.key}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`flex items-center gap-2 shadow-none ml-[-1px] rounded-none ${
+                        isFirst ? "rounded-l-md" : isLast ? "rounded-r-md" : ""
+                      }`}
+                    >
+                      {dropdown.label}
+                      {selectedCount > 0 && (
+                        <span className="ml-1 text-xs bg-gray-200 rounded-full px-2 py-0.5">
+                          {selectedCount}
+                        </span>
+                      )}
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" closeOnSelect={false}>
                     <DropdownMenuCheckboxItem
-                      key={s}
-                      checked={filters[dropdown.key].includes(s)}
-                      onCheckedChange={() => handleMultiSelect(dropdown.key, s)}
+                      checked={isAllSelected(dropdown.key)}
+                      onCheckedChange={() =>
+                        handleMultiSelect(dropdown.key, "__ALL__")
+                      }
                       onSelect={(e) => e.preventDefault()}
                     >
-                      {s}
+                      {dropdown.allLabel}
                     </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            );
-          })}
+                    {dropdown.options.map((s) => (
+                      <DropdownMenuCheckboxItem
+                        key={s}
+                        checked={filters[dropdown.key].includes(s)}
+                        onCheckedChange={() =>
+                          handleMultiSelect(dropdown.key, s)
+                        }
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        {s}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            })}
+          </div>
           {/* Price filter */}
-          <div className="flex items-center gap-1 rounded-md font-medium text-sm">
+          <div className="flex items-center gap-1 rounded-md font-medium text-sm ml-2">
             <span className="pr-1">Price</span>
             <input
               type="number"
@@ -85,7 +96,7 @@ export default function GlobalHeader({
                   price: { ...f.price, min: e.target.value },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Min"
             />
             <span className="text-xs">-</span>
@@ -100,7 +111,7 @@ export default function GlobalHeader({
                   price: { ...f.price, max: e.target.value },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Max"
             />
           </div>
@@ -118,7 +129,7 @@ export default function GlobalHeader({
                   cost: { ...f.cost, min: e.target.value },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Min"
             />
             <span className="text-xs">-</span>
@@ -133,7 +144,7 @@ export default function GlobalHeader({
                   cost: { ...f.cost, max: e.target.value },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Max"
             />
           </div>
@@ -154,7 +165,7 @@ export default function GlobalHeader({
                   },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Min"
             />
             <span className="text-xs">-</span>
@@ -172,7 +183,7 @@ export default function GlobalHeader({
                   },
                 }))
               }
-              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+              className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 hover:bg-gray-50"
               placeholder="Max"
             />
           </div>
@@ -180,9 +191,9 @@ export default function GlobalHeader({
       </div>
       {/* Filter chips */}
       {filterChips.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 mt-3">
           <span
-            className="flex items-center rounded-full py-1 text-sm font-medium text-gray-700 hover:text-primary-color transition hover:cursor-pointer"
+            className="flex items-center rounded-full p-1 text-sm font-medium text-primary-color transition hover:cursor-pointer"
             onClick={clearAllFilters}
           >
             Clear all filters
