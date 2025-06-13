@@ -100,8 +100,10 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
   // Custom color palette for stacks
   const stackColors = ['#B6E6FF', '#36BCF8', '#0085C8'];
   const getColor = (bar) => {
-    // Assign color based on stack key order, so each segment in a bar is different
-    return stackColors[keys.indexOf(bar.id) % stackColors.length];
+    // Get the order of non-zero stack segments for this bar
+    const stackOrder = keys.filter(k => bar.data[k] > 0);
+    const idx = stackOrder.indexOf(bar.id);
+    return stackColors[idx % stackColors.length];
   };
 
   if (!open) return null;
@@ -187,17 +189,34 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           data={data}
           keys={keys}
           indexBy={xAxis}
-          margin={{ top: 50, right: 50, bottom: 50, left: 60 }}
+          margin={{ top: 20, right: 50, bottom: 50, left: 60 }}
           padding={0.1}
           groupMode="stacked"
           valueScale={{ type: "linear" }}
           indexScale={{ type: "band", round: true }}
-          axisBottom={{ legend: xAxis, legendOffset: 32 }}
-          axisLeft={{ legend: yAxis, legendOffset: -40 }}
+          axisBottom={{ legend: '', legendOffset: 32 }}
+          axisLeft={{ legend: '', legendOffset: -40 }}
           label={getBarLabel}
           labelSkipWidth={12}
           labelSkipHeight={12}
           colors={getColor}
+          labelTextColor="#000"
+          theme={{
+            labels: {
+              text: {
+                dominantBaseline: 'central',
+                dy: 4, // 4px from edge (SVG dy)
+              },
+            },
+            axis: {
+              legend: {
+                text: {
+                  fontSize: 14,
+                  fontWeight: 500,
+                },
+              },
+            },
+          }}
           animate={true}
         />
       </div>
