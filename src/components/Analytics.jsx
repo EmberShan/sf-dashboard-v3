@@ -74,7 +74,8 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
   const [yFunc, setYFunc] = useState("sum");
   const [stackBy, setStackBy] = useState("category");
 
-  // Prevent stackBy === xAxis
+  // Prevent stackBy === xAxis and xAxis === stackBy (bidirectional exclusion)
+  const xAxisOptionsFiltered = xAxisOptions.filter((opt) => opt.value !== stackBy);
   const stackByOptions = xAxisOptions.filter((opt) => opt.value !== xAxis);
 
   // Prepare data for Nivo
@@ -86,10 +87,21 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
     yFunc
   );
 
-  // Custom label for each bar segment
+  // Custom label for each bar segment: truncate stack-by label with ellipsis if too long
   const getBarLabel = (bar) => {
-    // bar.id is the stackBy value, bar.value is the y value
-    return `${bar.id}\n${Number(bar.value).toFixed(0)}`;
+    const maxLen = 8;
+    let label = String(bar.id);
+    if (label.length > maxLen) label = label.slice(0, maxLen - 1) + '…';
+    const value = Number(bar.value).toFixed(0);
+    // Show label and value on two lines (if possible)
+    return `${label}\n${value}`;
+  };
+
+  // Custom color palette for stacks
+  const stackColors = ['#B6E6FF', '#36BCF8', '#0085C8'];
+  const getColor = (bar) => {
+    // Assign color based on stack key order, so each segment in a bar is different
+    return stackColors[keys.indexOf(bar.id) % stackColors.length];
   };
 
   if (!open) return null;
@@ -141,11 +153,11 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
             value={xAxis}
             onChange={(e) => {
               setXAxis(e.target.value);
-              if (e.target.value === stackBy) setStackBy("category");
+              if (e.target.value === stackBy) setStackBy(stackByOptions[0]?.value || "category");
             }}
             className="border rounded px-2 py-1"
           >
-            {xAxisOptions.map((opt) => (
+            {xAxisOptionsFiltered.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -156,7 +168,10 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           <label className="text-sm font-medium ml-2">Stack By:</label>
           <select
             value={stackBy}
-            onChange={(e) => setStackBy(e.target.value)}
+            onChange={(e) => {
+              setStackBy(e.target.value);
+              if (e.target.value === xAxis) setXAxis(xAxisOptionsFiltered[0]?.value || "season");
+            }}
             className="border rounded px-2 py-1"
           >
             {stackByOptions.map((opt) => (
@@ -173,7 +188,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           keys={keys}
           indexBy={xAxis}
           margin={{ top: 50, right: 50, bottom: 50, left: 60 }}
-          padding={0.3}
+          padding={0.1}
           groupMode="stacked"
           valueScale={{ type: "linear" }}
           indexScale={{ type: "band", round: true }}
@@ -182,7 +197,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           label={getBarLabel}
           labelSkipWidth={12}
           labelSkipHeight={12}
-          colors={{ scheme: "nivo" }}
+          colors={getColor}
           animate={true}
         />
       </div>
