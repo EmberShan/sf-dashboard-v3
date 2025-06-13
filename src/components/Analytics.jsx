@@ -1,6 +1,23 @@
 import React, { useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import { X, ChartPie } from "lucide-react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./ui/table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "./ui/button";
 
 const xAxisOptions = [
   { value: "season", label: "Season" },
@@ -120,11 +137,124 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
     return stackColors[idx % stackColors.length];
   };
 
+  // AnalyticsDataTable: shows the same data as the stacked bar chart
+  function AnalyticsDataTable({ data, keys, xAxis, stackBy, yAxis, yFunc }) {
+    // Columns: unique xAxis values (sorted for consistency)
+    const columns = React.useMemo(() => {
+      const xAxisValues = Array.from(new Set(data.map((row) => row[xAxis])));
+      // First column: stackBy value
+      const cols = [
+        {
+          accessorKey: "stackByValue",
+          header: () => (
+            <span>
+              {stackBy.charAt(0).toUpperCase() + stackBy.slice(1)} / {xAxis.charAt(0).toUpperCase() + xAxis.slice(1)}
+            </span>
+          ),
+          enableSorting: true,
+          cell: ({ row }) => row.original.stackByValue,
+        },
+        ...xAxisValues.map((xVal) => ({
+          accessorKey: xVal,
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              {xVal}
+              <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+            </Button>
+          ),
+          enableSorting: true,
+          cell: ({ row }) => row.original[xVal],
+        })),
+      ];
+      return cols;
+    }, [data, xAxis, stackBy]);
+
+    // Build table data: rows as stackBy, columns as xAxis
+    const tableData = React.useMemo(() => {
+      return keys.map((rowKey) => {
+        const row = { stackByValue: rowKey };
+        data.forEach((entry) => {
+          row[entry[xAxis]] = entry[rowKey] !== undefined && entry[rowKey] !== null && !isNaN(entry[rowKey])
+            ? Number(entry[rowKey]).toFixed(yFunc === "avg" ? 1 : 0)
+            : "-";
+        });
+        return row;
+      });
+    }, [data, keys, xAxis, yFunc]);
+
+    const [sorting, setSorting] = React.useState([]);
+    const table = useReactTable({
+      data: tableData,
+      columns,
+      state: { sorting },
+      onSortingChange: setSorting,
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+    });
+
+    return (
+      <div className="mt-8">
+        <div className="rounded-md border border-slate-200 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className={
+                        header.index === 0
+                          ? "bg-slate-100 border border-slate-200 font-medium whitespace-nowrap w-auto"
+                          : "bg-slate-100 border border-slate-200"
+                      }
+                      style={header.index === 0 ? { width: '1%', whiteSpace: 'nowrap' } : {}}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell, i) => (
+                      <TableCell
+                        key={cell.id}
+                        className={i === 0 ? "bg-slate-100 border border-slate-200 font-medium whitespace-nowrap w-auto" : "border border-slate-200"}
+                        style={i === 0 ? { width: '1%', whiteSpace: 'nowrap' } : {}}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  }
+
   if (!open) return null;
 
   return (
     <div
-      className={`h-full bg-background-color border-l border-gray-200 flex flex-col w-[50vw] max-w-[50vw] min-w-0 flex-1 min-h-0`}
+      className={`bg-background-color border-l border-gray-200 flex flex-col w-[50vw] max-w-[50vw] min-w-0`}
+      style={{ overflowY: 'auto' }}
     >
       {/* header */}
       <div className="flex items-center justify-between px-8 py-3 border-b flex-shrink-0">
@@ -208,47 +338,62 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           </div>
         </div>
       </div>
-      <div className="flex-1 min-h-0 p-4 overflow-auto flex flex-col">
-        <ResponsiveBar
-          data={data}
-          keys={keys}
-          indexBy={xAxis}
-          margin={{ top: 20, right: 50, bottom: 50, left: 60 }}
-          padding={0.1}
-          groupMode="stacked"
-          valueScale={{ type: "linear" }}
-          indexScale={{ type: "band", round: true }}
-          axisBottom={{ legend: "", legendOffset: 32 }}
-          axisLeft={{ legend: "", legendOffset: -40 }}
-          label={getBarLabel}
-          labelSkipWidth={12}
-          labelSkipHeight={12}
-          colors={getColor}
-          labelTextColor="#000"
-          theme={{
-            labels: {
-              text: {
-                dominantBaseline: "central",
-                dy: 4, // 4px from edge (SVG dy)
-              },
-            },
-            axis: {
-              legend: {
-                text: {
-                  fontSize: 14,
-                  fontWeight: 500,
+      <div className="flex flex-col p-4" style={{ overflow: 'visible' }}>
+        <div style={{ minHeight: 200, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ height: '65vh', minHeight: 200 }}>
+            <ResponsiveBar
+              data={data}
+              keys={keys}
+              indexBy={xAxis}
+              margin={{ top: 20, right: 50, bottom: 50, left: 60 }}
+              padding={0.1}
+              groupMode="stacked"
+              valueScale={{ type: "linear" }}
+              indexScale={{ type: "band", round: true }}
+              axisBottom={{ legend: "", legendOffset: 32 }}
+              axisLeft={{ legend: "", legendOffset: -40 }}
+              label={getBarLabel}
+              labelSkipWidth={12}
+              labelSkipHeight={12}
+              colors={getColor}
+              labelTextColor="#000"
+              theme={{
+                labels: {
+                  text: {
+                    dominantBaseline: "central",
+                    dy: 4, // 4px from edge (SVG dy)
+                  },
                 },
-              },
-            },
-          }}
-          tooltip={({ id, value, color, indexValue, data }) => (
-            <div style={{ padding: 8, color: '#222', fontSize: 14, backgroundColor: '#fff', borderRadius: 4, width: 200 }}>
-              <span style={{ display: 'inline-block', width: 12, height: 12, background: color, borderRadius: 2, marginRight: 8 }} />
-              <b>{id}</b> in <b>{indexValue}</b>: {Number(value).toFixed(1)}
-            </div>
-          )}
-          animate={true}
-        />
+                axis: {
+                  legend: {
+                    text: {
+                      fontSize: 14,
+                      fontWeight: 500,
+                    },
+                  },
+                },
+              }}
+              tooltip={({ id, value, color, indexValue, data }) => (
+                <div style={{ padding: 8, color: '#222', fontSize: 14, backgroundColor: '#fff', borderRadius: 4, width: 200 }}>
+                  <span style={{ display: 'inline-block', width: 12, height: 12, background: color, borderRadius: 2, marginRight: 8 }} />
+                  <b>{id}</b> in <b>{indexValue}</b>: {Number(value).toFixed(1)}
+                </div>
+              )}
+              animate={true}
+            />
+          </div>
+        </div>
+
+        <div style={{ width: '90%', overflowX: 'auto' }} className="mb-8 mx-auto">
+          <AnalyticsDataTable
+            data={data}
+            keys={keys}
+            xAxis={xAxis}
+            stackBy={stackBy}
+            yAxis={yAxis}
+            yFunc={yFunc}
+          />
+        </div>
       </div>
     </div>
   );
