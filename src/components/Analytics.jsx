@@ -91,7 +91,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
 
   // Estimate maxLen for label based on bar width
   const chartWidth = typeof window !== 'undefined' ? window.innerWidth * 0.5 : 600; // fallback 600px
-  const leftMargin = 60;
+  const leftMargin = 50;
   const rightMargin = 50;
   const padding = 0.1; // same as ResponsiveBar
   const numBars = data.length || 1;
@@ -100,7 +100,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
   const barWidth = (availableWidth - totalGap) / numBars;
   const avgCharWidth = 8; // px, for 14px font
   const labelPadding = 8; // px, for left/right padding
-  const maxLenDynamic = Math.max(2, Math.floor((barWidth - labelPadding) / avgCharWidth));
+  const maxLenDynamic = Math.max(2, Math.floor((barWidth - labelPadding) / avgCharWidth) - 2);
 
   // Custom label for each bar segment: truncate stack-by label with ellipsis if too long
   const getBarLabel = (bar) => {
