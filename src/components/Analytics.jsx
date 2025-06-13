@@ -92,12 +92,12 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
     return `${bar.id}\n${Number(bar.value).toFixed(0)}`;
   };
 
+  if (!open) return null;
+
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-background-color border-l z-50 border-gray-200 flex flex-col ${
-        open ? "" : "translate-x-full"
-      }`}
-      style={{ width: PANEL_WIDTH, minWidth: PANEL_WIDTH }}
+      className={
+        `h-full bg-background-color border-l border-gray-200 flex flex-col w-[50vw] max-w-[50vw] min-w-0`}
     >
       {/* header */}
       <div className="flex items-center justify-between px-8 py-3 border-b">
@@ -181,17 +181,6 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           label={getBarLabel}
           labelSkipWidth={12}
           labelSkipHeight={12}
-          //   legends={[
-          //     {
-          //       dataFrom: 'keys',
-          //       anchor: 'bottom-right',
-          //       direction: 'column',
-          //       translateX: 120,
-          //       itemsSpacing: 3,
-          //       itemWidth: 100,
-          //       itemHeight: 16,
-          //     },
-          //   ]}
           colors={{ scheme: "nivo" }}
           animate={true}
         />

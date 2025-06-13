@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 import {
@@ -48,14 +49,18 @@ export function MySidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="w-full flex items-center gap-2 py-4">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
-            ES
+        <div className="flex items-center justify-between">
+          <div className="w-full flex items-center gap-2 py-4">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+              ES
+            </div>
+            <div>
+              <div className="text-base font-semibold">Ember Shan</div>
+              <div className="text-xs text-gray-500">merchandiser</div>
+            </div>
           </div>
-          <div>
-            <div className="text-base font-semibold">Ember Shan</div>
-            <div className="text-xs text-gray-500">merchandiser</div>
-          </div>
+          {/* Sidebar close trigger */}
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
