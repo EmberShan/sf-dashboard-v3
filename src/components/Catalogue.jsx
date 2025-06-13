@@ -163,7 +163,7 @@ export default function Catalogue({
         className={`flex-1 flex flex-col transition-all duration-300 min-w-0 min-h-0`}
       >
         {/* buttons and search */}
-        <div className="flex w-full justify-between items-center pb-4 flex-shrink-0">
+        <div className="flex w-full justify-between items-center pb-4 flex-shrink-0 flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -173,17 +173,15 @@ export default function Catalogue({
               Generate Report
             </Button>
             {/* add to line plan button */}
-            <div className="flex items-center justify-end space-x-4">
-              <Button
-                className={`${
-                  Object.keys(rowSelection).length > 0
-                    ? "text-white bg-primary-color/90 hover:bg-primary-color"
-                    : "bg-gray-400 text-white hover:bg-gray-400 hover:cursor-default"
-                }`}
-              >
-                Add to Line Plan ({Object.keys(rowSelection).length} selected)
-              </Button>
-            </div>
+            <Button
+              className={`${
+                Object.keys(rowSelection).length > 0
+                  ? "text-white bg-primary-color/90 hover:bg-primary-color"
+                  : "bg-gray-400 text-white hover:bg-gray-400 hover:cursor-default"
+              }`}
+            >
+              Add to Line Plan ({Object.keys(rowSelection).length} selected)
+            </Button>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-muted-foreground flex-1 text-sm">

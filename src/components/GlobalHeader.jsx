@@ -25,10 +25,10 @@ export default function GlobalHeader({
   // const { open } = useSidebar(); // No longer needed for header margin
   return (
     <header className="w-full flex flex-col border-b border-gray-200 bg-background-color px-8 py-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
-          <span className="font-bold text-lg">Catalogue</span>
+          <span className="font-bold text-lg pt-1">Catalogue</span>
         </div>
         {/* Filters */}
         <div className="flex flex-wrap items-center ml-8 gap-2">
