@@ -100,7 +100,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
   const barWidth = (availableWidth - totalGap) / numBars;
   const avgCharWidth = 8; // px, for 14px font
   const labelPadding = 8; // px, for left/right padding
-  const maxLenDynamic = Math.max(2, Math.floor((barWidth - labelPadding) / avgCharWidth) - 2);
+  const maxLenDynamic = Math.max(2, Math.floor((barWidth - labelPadding) / avgCharWidth) -4);
 
   // Custom label for each bar segment: truncate stack-by label with ellipsis if too long
   const getBarLabel = (bar) => {
