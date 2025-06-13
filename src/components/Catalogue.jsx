@@ -46,6 +46,12 @@ const colors = getUnique(catalogue, "color");
 const fabrics = getUnique(catalogue, "fabric");
 const categories = getUnique(catalogue, "category");
 
+const maxPrice = Math.max(...catalogue.map((item) => item.price));
+const maxCost = Math.max(...catalogue.map((item) => item.cost));
+const maxMargin = Math.max(
+  ...catalogue.map((item) => ((item.price - item.cost) / item.price) * 100)
+);
+
 export default function Catalogue() {
   const [globalFilter, setGlobalFilter] = useState("");
   // Multi-select filters: each is an array
@@ -55,6 +61,9 @@ export default function Catalogue() {
     color: [],
     fabric: [],
     category: [],
+    price: { min: 0, max: maxPrice },
+    cost: { min: 0, max: maxCost },
+    margin: { min: 0, max: maxMargin },
   });
   const [sorting, setSorting] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -80,7 +89,24 @@ export default function Catalogue() {
         (filters.fabric.length === 0 || filters.fabric.includes(item.fabric)) &&
         (filters.category.length === 0 ||
           filters.category.includes(item.category));
-      return matchesSearch && matchesDropdowns;
+      // Price, cost, margin filters
+      const matchesPrice =
+        Number(item.price) >= Number(filters.price.min) &&
+        Number(item.price) <= Number(filters.price.max);
+      const matchesCost =
+        Number(item.cost) >= Number(filters.cost.min) &&
+        Number(item.cost) <= Number(filters.cost.max);
+      const margin = ((item.price - item.cost) / item.price) * 100;
+      const matchesMargin =
+        margin >= Number(filters.margin.min) &&
+        margin <= Number(filters.margin.max);
+      return (
+        matchesSearch &&
+        matchesDropdowns &&
+        matchesPrice &&
+        matchesCost &&
+        matchesMargin
+      );
     });
   }, [globalFilter, filters]);
 
@@ -217,16 +243,40 @@ export default function Catalogue() {
 
   // Helper for removing a single filter value
   const removeFilterValue = (filterKey, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [filterKey]: prev[filterKey].filter((v) => v !== value),
-    }));
+    if (["price", "cost", "margin"].includes(filterKey)) {
+      setFilters((prev) => ({
+        ...prev,
+        [filterKey]:
+          filterKey === "margin"
+            ? { min: 0, max: maxMargin }
+            : filterKey === "price"
+            ? { min: 0, max: maxPrice }
+            : { min: 0, max: maxCost },
+      }));
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        [filterKey]: prev[filterKey].filter((v) => v !== value),
+      }));
+    }
   };
 
   // Helper for generating chips for all selected filters
-  const filterChips = Object.entries(filters).flatMap(([key, values]) =>
-    values.map((value) => ({ key, value }))
-  );
+  const filterChips = [
+    ...Object.entries(filters)
+      .filter(([key]) => !["price", "cost", "margin"].includes(key))
+      .flatMap(([key, values]) => values.map((value) => ({ key, value }))),
+    ...["price", "cost", "margin"].flatMap((key) => {
+      const { min, max } = filters[key];
+      const defaultMin = 0;
+      const defaultMax =
+        key === "price" ? maxPrice : key === "cost" ? maxCost : maxMargin;
+      if (Number(min) !== defaultMin || Number(max) !== defaultMax) {
+        return [{ key, value: `${min}-${max}` }];
+      }
+      return [];
+    }),
+  ];
 
   // Dropdown filter config
   const dropdowns = [
@@ -278,23 +328,38 @@ export default function Catalogue() {
   return (
     <div className="w-full">
       <div className="flex w-full justify-between items-center pb-4">
-        {/* how many rows are selected */}
-        <div className="flex items-center justify-end space-x-4">
-          <Button> Add to Line Plan </Button>
-          <div className="text-muted-foreground flex-1 text-sm">
-            {Object.keys(rowSelection).length} of {filteredData.length} row(s)
-            selected.
+        <div className="flex items-center gap-4">
+          <Button variant="outline" className="bg-primary-color/80 hover:bg-primary-color text-white hover:text-white border-none"> Generate Report </Button>
+          {/* add to line plan button */}
+          <div className="flex items-center justify-end space-x-4">
+            <Button
+              className={`${
+                Object.keys(rowSelection).length > 0
+                  ? "text-white bg-primary-color/80 hover:bg-primary-color"
+                  : "bg-gray-400 text-white hover:bg-gray-400 hover:cursor-default"
+              }`}
+            >
+              {" "}
+              Add to Line Plan ({
+                Object.keys(rowSelection).length
+              } selected){" "}
+            </Button>
           </div>
         </div>
-        <input
-          type="text"
-          placeholder="Search all fields..."
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className="max-w-sm border rounded px-2 py-1"
-        />
+        <div className="flex items-center gap-4">
+          <div className="text-muted-foreground flex-1 text-sm">
+            {filteredData.length} products found
+          </div>
+          <input
+            type="text"
+            placeholder="Search all fields..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="max-w-md border rounded px-2 py-1 bg-white"
+          />
+        </div>
       </div>
-      {/* search and filters */}
+      {/* filters */}
       <div className="flex flex-wrap gap-2 items-center mb-4">
         {/* Multi-select Dropdowns for filters */}
         {dropdowns.map((dropdown) => {
@@ -336,6 +401,105 @@ export default function Catalogue() {
             </DropdownMenu>
           );
         })}
+        {/* Price filter */}
+        <div className="flex items-center gap-1 rounded-md font-medium text-sm mx-2">
+          <span className="pr-1">Price</span>
+          <input
+            type="number"
+            min={0}
+            max={maxPrice}
+            value={filters.price.min}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                price: { ...f.price, min: e.target.value },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Min"
+          />
+          <span className="text-xs">-</span>
+          <input
+            type="number"
+            min={0}
+            max={maxPrice}
+            value={filters.price.max}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                price: { ...f.price, max: e.target.value },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Max"
+          />
+        </div>
+        {/* Cost filter */}
+        <div className="flex items-center gap-1 font-medium text-sm ml-2">
+          <span className="pr-1">Cost</span>
+          <input
+            type="number"
+            min={0}
+            max={maxCost}
+            value={filters.cost.min}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                cost: { ...f.cost, min: e.target.value },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Min"
+          />
+          <span className="text-xs">-</span>
+          <input
+            type="number"
+            min={0}
+            max={maxCost}
+            value={filters.cost.max}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                cost: { ...f.cost, max: e.target.value },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Max"
+          />
+        </div>
+        {/* Margin filter */}
+        <div className="flex items-center gap-1 font-medium text-sm ml-2">
+          <span className="pr-1">Margin (%)</span>
+          <input
+            type="number"
+            min={0}
+            max={Math.round(maxMargin)}
+            value={Number(filters.margin.min).toFixed(1)}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                margin: { ...f.margin, min: Number(e.target.value).toFixed(1) },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Min"
+          />
+          <span className="text-xs">-</span>
+          <input
+            type="number"
+            min={0}
+            max={Math.round(maxMargin)}
+            value={Number(filters.margin.max).toFixed(1)}
+            onChange={(e) =>
+              setFilters((f) => ({
+                ...f,
+                margin: { ...f.margin, max: Number(e.target.value).toFixed(1) },
+              }))
+            }
+            className="w-16 border rounded-md px-1 py-1.5 bg-white p-4 shadow-xs hover:bg-gray-50"
+            placeholder="Max"
+          />
+        </div>
       </div>
 
       {/* Filter chips */}
@@ -350,6 +514,9 @@ export default function Catalogue() {
                 color: [],
                 fabric: [],
                 category: [],
+                price: { min: 0, max: maxPrice },
+                cost: { min: 0, max: maxCost },
+                margin: { min: 0, max: maxMargin },
               })
             }
           >
