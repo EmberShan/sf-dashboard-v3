@@ -99,6 +99,7 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
       }`}
       style={{ width: PANEL_WIDTH, minWidth: PANEL_WIDTH }}
     >
+      {/* header */}
       <div className="flex items-center justify-between px-8 py-3 border-b">
         <div className="flex items-center gap-2">
           <ChartPie className="w-4 h-4" />
@@ -108,7 +109,8 @@ export default function Analytics({ open, onClose, filteredData, filters }) {
           <X className="w-5 h-5" />
         </button>
       </div>
-      <div className="flex flex-col gap-4 p-4">
+      {/* filters */}
+      <div className="flex flex-col gap-4 px-8 pt-4">
         <div className="flex gap-2 items-center flex-wrap">
           <label className="text-sm font-medium ml-2">Y-Axis:</label>
           <select
