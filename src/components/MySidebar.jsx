@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import {
@@ -46,63 +48,70 @@ const items2 = [
 ];
 
 export function MySidebar() {
+  const { open, isMobile } = useSidebar();
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center justify-between">
-          <div className="w-full flex items-center gap-2 py-4">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
-              ES
+    <>
+      {/* Backdrop for desktop only */}
+      {open && !isMobile && (
+        <div className="fixed inset-0 z-40 bg-black/20 pointer-events-none" aria-hidden="true" />
+      )}
+      <Sidebar className="bg-slate-800 text-white">
+        <SidebarHeader>
+          <div className="flex items-center justify-between">
+            <div className="w-full flex items-center gap-2 py-4">
+              <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-black">
+                ES
+              </div>
+              <div>
+                <div className="text-base font-semibold text-white">Ember Shan</div>
+                <div className="text-xs text-white/70">merchandiser</div>
+              </div>
             </div>
-            <div>
-              <div className="text-base font-semibold">Ember Shan</div>
-              <div className="text-xs text-gray-500">merchandiser</div>
-            </div>
+            {/* Sidebar close trigger */}
+            <SidebarTrigger />
           </div>
-          {/* Sidebar close trigger */}
-          <SidebarTrigger />
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        {/* General */}
-        <SidebarGroup>
-          <SidebarGroupLabel>General</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarHeader>
+        <SidebarContent>
+          {/* General */}
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-slate-300">General</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild className="text-white">
+                      <a href={item.url} className="flex items-center gap-2 text-white">
+                        <item.icon className="text-white" />
+                        <span className="text-white">{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Merchandising */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Merchandising</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items2.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter />
-    </Sidebar>
+          {/* Merchandising */}
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-slate-300">Merchandising</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items2.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild className="text-white">
+                      <a href={item.url} className="flex items-center gap-2 text-white">
+                        <item.icon className="text-white" />
+                        <span className="text-white">{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter />
+      </Sidebar>
+    </>
   );
 }

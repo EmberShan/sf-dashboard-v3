@@ -24,7 +24,7 @@ export default function GlobalHeader({
 }) {
   // const { open } = useSidebar(); // No longer needed for header margin
   return (
-    <header className="w-full flex flex-col border-b border-gray-200 bg-background-color z-40 px-8 py-4">
+    <header className="w-full flex flex-col border-b border-gray-200 bg-background-color px-8 py-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
